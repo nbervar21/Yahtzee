@@ -1,8 +1,8 @@
-class YahtzeeDie
+class Die
 {
     private int value;
     private boolean held;
-    public YahtzeeDie()
+    public Die()
     {
         held = false;
         value = 5;

@@ -1,95 +1,170 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.InputMismatchException;
 
 class Yahtzee
 {
-    public static void main(String[] args)
+    Scanner kb;
+    public Yahtzee(Scanner input)
     {
-        Scanner kb = new Scanner(System.in);
-        YahtzeeDie[] dice = {new YahtzeeDie(), new YahtzeeDie(), new YahtzeeDie(), new YahtzeeDie(), new YahtzeeDie()};
-        int[] scorecard = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+        kb = input;
+    }
+    public void play()
+    {
+        YahtzeeAI ai = new YahtzeeAI();
+        Die[] dice = {new Die(), new Die(), new Die(), new Die(), new Die()};
+        // add players to the game
+        kb.nextLine();
+        System.out.println("Adding players, leave blank when finished");
+        List<Scorecard> players = new ArrayList<Scorecard>();
+        List<Boolean> bots = new ArrayList<Boolean>();
+        String scorer = "";
+        do
+        {
+            System.out.print("Add player: ");
+            scorer = kb.nextLine();
+            if (!scorer.equals(""))
+            {
+                System.out.print("CPU player? [Y/N]: ");
+                String confirm = "";
+                while (!(confirm.equals("y") || confirm.equals("n")))
+                {
+                    confirm = kb.nextLine().toLowerCase();
+                }
+                boolean isBot = confirm.equals("y");
+                System.out.println("Added " + scorer + (isBot ? " (BOT)" : ""));
+                players.add(new Scorecard(scorer));
+                bots.add(isBot);
+            }
+        }
+        while (!scorer.equals("") || players.isEmpty());
+        // start the main game loop
         boolean gameOver = false;
         while (!gameOver)
         {
-            System.out.println("\nScorecard\n" + formatScores(getScores(dice, scorecard), scorecard) + "\n" + comboDice(dice, false) + "\n" + comboDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll\n[7]   Score");
-            int input = -1;
-            while (input < 0 || input > 7)
+            for (int player = 0; player < players.size(); player++)
             {
-                System.out.print("Enter a number: ");
-                try
+                Scorecard scorecard = players.get(player);
+                int rollsLeft = 2;
+                while (true)
                 {
-                    input = kb.nextInt();
-                }
-                catch (InputMismatchException e)
-                {
-                    kb.next();
-                }
-            }
-            if (input == 0)
-            {
-                gameOver = true;
-            }
-            else if (input < 6)
-            {
-                dice[input - 1].toggleHeld();
-            }
-            else if (input == 6)
-            {
-                for (YahtzeeDie die : dice)
-                {
-                    if (!die.isHeld())
+                    System.out.println(scorecard.getString(dice) + "\n" + combineDice(dice, false) + "\n" + combineDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll (" + rollsLeft + ")\n[7]   Score");
+                    int input = -1;
+                    while (input < 0 || input > 7)
                     {
-                        die.roll();
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < 13; i++)
-                {
-                    if (scorecard[i] == -1)
-                    {
-                        System.out.print("\n[" + (i + 1) + "] " + getScoreName(i));
-                    }
-                }
-                int scoreIndex = -2;
-                while (scoreIndex < -1 || scoreIndex > 12 || scorecard[scoreIndex] != -1)
-                {
-                    System.out.print("\nScore as: ");
-                    try
-                    {
-                        scoreIndex = kb.nextInt() - 1;
-                    }
-                    catch (InputMismatchException e)
-                    {
-                        kb.next();
-                    }
-                }
-                if (scoreIndex > -1)
-                {
-                    scorecard[scoreIndex] = getScores(dice, scorecard)[scoreIndex];
-                    resetDice(dice);
-                    gameOver = true;
-                    for (int score : scorecard)
-                    {
-                        if (score == -1)
+                        System.out.print("Enter a number: ");
+                        if (bots.get(player))
                         {
-                            gameOver = false;
+                            input = ai.rollOrHold(rollsLeft, scorecard, dice);
+                            System.out.println(input);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                input = kb.nextInt();
+                            }
+                            catch (InputMismatchException e)
+                            {
+                                kb.next();
+                            }
                         }
                     }
-                    if (gameOver)
+                    if (input == 0)
                     {
-                        System.out.println("\nFinal Score\n" + formatScores(getScores(dice, scorecard), scorecard));
+                        return;
+                    }
+                    else if (input < 6)
+                    {
+                        dice[input - 1].toggleHeld();
+                    }
+                    else if (input == 6)
+                    {
+                        if (rollsLeft > 0)
+                        {
+                            for (Die die : dice)
+                            {
+                                if (!die.isHeld())
+                                {
+                                    die.roll();
+                                }
+                            }
+                            rollsLeft--;
+                        }
+                        else
+                        {
+                            System.out.println("You are out of rolls!");
+                        }
+                    }
+                    else
+                    {
+                        System.out.println("[0] Cancel");
+                        for (int i = 0; i < 13; i++)
+                        {
+                            if (!scorecard.isScored(i))
+                            {
+                                System.out.println("[" + (i + 1) + "] " + scorecard.getScoreName(i));
+                            }
+                        }
+                        int scoreIndex = -2;
+                        while (scoreIndex < -1 || scoreIndex > 12 || (scoreIndex > -1 && scorecard.isScored(scoreIndex)))
+                        {
+                            System.out.print("Score as: ");
+                            try
+                            {
+                                scoreIndex = kb.nextInt() - 1;
+                            }
+                            catch (InputMismatchException e)
+                            {
+                                kb.next();
+                            }
+                        }
+                        if (scoreIndex > -1)
+                        {
+                            String confirm = "";
+                            kb.nextLine();
+                            while (!(confirm.equals("y") || confirm.equals("n")))
+                            {
+                                System.out.print("Score as " + scorecard.getScoreName(scoreIndex) + " for " + scorecard.getScores(dice)[scoreIndex] + " points? (Y/N) ");
+                                confirm = kb.nextLine().toLowerCase();
+                            }
+                            if (confirm.equals("y"))
+                            {
+                                scorecard.score(scoreIndex, dice);
+                                resetDice(dice);
+                                if (players.lastIndexOf(scorecard) == players.size() - 1)
+                                {
+                                    gameOver = true;
+                                    for (int i = 0; i < 13; i++)
+                                    {
+                                        if (!scorecard.isScored(i))
+                                        {
+                                            gameOver = false;
+                                        }
+                                    }
+                                    if (gameOver)
+                                    {
+                                        System.out.println("\nFinal Score";
+                                        for (Scorecard scorecard : players)
+                                        {
+                                            System.out.println(scorecard.getScorer() + ": " + scorecard.getTotal());
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
         System.out.println("Thanks for playing!");
     }
-    static String comboDice(YahtzeeDie[] dice, boolean heldOnly)
+    static String combineDice(Die[] dice, boolean heldOnly)
     {
         String[] diceRows = {"", "", "", "", ""};
-        for (YahtzeeDie die : dice)
+        for (Die die : dice)
         {
             String[] newDieRows = die.getString(heldOnly).split("\n");
             for (int i = 0; i < 5; i++)
@@ -99,105 +174,9 @@ class Yahtzee
         }
         return String.join("\n", diceRows);
     }
-    static int[] getScores(YahtzeeDie[] dice, int[] scorecard)
+    static void resetDice(Die[] dice)
     {
-        int[] scores = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int sum = 0;
-        int[] count = {0, 0, 0, 0, 0, 0};
-        for (YahtzeeDie die : dice)
-        {
-            int val = die.getValue();
-            sum += val;
-            count[val - 1]++;
-        }
-        // how many different numbers we have
-        // yahtzee would be 1
-        // full house or 4 of a kind would be 2
-        // big straights are 5
-        int diffNums = 0;
-        for (int num : count)
-        {
-            if (num > 0)
-            {
-                diffNums++;
-                if (num > 2)
-                {
-                    // 3 of a kind
-                    scores[6] = sum;
-                    if (num > 3)
-                    {
-                        // 4 of a kind
-                        scores[7] = sum;
-                        if (num > 4)
-                        {
-                            // yahtzee, baby!
-                            scores[11] = 50;
-                        }
-                    }
-                }
-            }
-        }
-        // full house
-        if (scores[6] > 0 && scores[7] == 0 && diffNums == 2)
-        {
-            scores[8] = 25;
-        }
-        // aces through sixes
-        for (int i = 0; i < 6; i++)
-        {
-            scores[i] = count[i] * (i + 1);
-        }
-        // little straight
-        if (diffNums > 3 && (count[2] > 0 && count[3] > 0) && ((count[1] > 0 && count[0] > 0) || (count[1] > 0 && count[4] > 0) || (count[4] > 0 && count[5] > 0)))
-        {
-            scores[9] = 30;
-            // big straight
-            if (diffNums == 5 && (count[0] == 0 || count[5] == 0))
-            {
-                // if we dont have a 1 or 6
-                // we def have big straight
-                scores[10] = 40;
-            }
-        }
-        // chance
-        scores[12] = sum;
-        // replace scores with already scored ones
-        for (int i = 0; i < 13; i++)
-        {
-            if (scorecard[i] != -1)
-            {
-                scores[i] = scorecard[i];
-            }
-        }
-        return scores;
-    }
-    static String getScoreName(int index)
-    {
-        String[] scoreNames = {"Aces", "Deuces", "Threes", "Fours", "Fives", "Sixes", "3 of a Kind", "4 of a Kind", "Full House", "Sm. Straight", "Lg. Straight", "Yahtzee", "Chance"};
-        return scoreNames[index];
-    }
-    static String formatScores(int[] scores, int[] scorecard)
-    {
-        int total = 0;
-        StringBuilder formattedScores = new StringBuilder("");
-        for (int i = 0; i < scores.length; i++)
-        {
-            formattedScores.append("[" + (scorecard[i] == -1 ? " " : "X") + "] " + getScoreName(i) + ": " + scores[i] + "\n");
-            if (scorecard[i] != -1)
-            {
-                total += scorecard[i];
-            }
-        }
-        boolean gotBonus = (scorecard[0] + scorecard[1] + scorecard[2] + scorecard[3] + scorecard[4] + scorecard[5] >= 63);
-        if (gotBonus)
-        {
-            total += 35;
-        }
-        return formattedScores.toString() + "    Total: " + total + (gotBonus ? " (Bonus +35)" : "") + "\n";
-    }
-    static void resetDice(YahtzeeDie[] dice)
-    {
-        for (YahtzeeDie die : dice)
+        for (Die die : dice)
         {
             if (die.isHeld())
             {
