@@ -93,7 +93,14 @@ class YahtzeeAI
     }
     public void sleep()
     {
-        // skilled bots "think" faster
-        Thread.sleep(400 - (difficulty * 30));
+        try
+        {
+            // skilled bots "think" faster
+            Thread.sleep(400 - (difficulty * 30));
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 }

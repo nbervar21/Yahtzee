@@ -33,7 +33,7 @@ class Yahtzee
                     confirm = kb.nextLine().toLowerCase();
                 }
                 boolean isBot = confirm.equals("y");
-                System.out.println("Added " + scorer + " (" + (isBot ? "BOT" : "HUMAN") + ")");
+                System.out.println("Added " + scorer + " (" + (isBot ? coloredText("BOT", 6) : "") + ")");
                 players.add(new Scorecard(scorer));
                 bots.add(isBot);
             }
@@ -117,7 +117,7 @@ class Yahtzee
                             {
                                 scoreIndex = ai.whatToScore(scorecard, dice);
                                 ai.sleep();
-                                System.out.println(scoreIndex);
+                                System.out.println(scoreIndex + 1);
                                 ai.sleep();
                             }
                             else
@@ -134,12 +134,22 @@ class Yahtzee
                         }
                         if (scoreIndex > -1)
                         {
+                            System.out.print("Score as " + scorecard.getScoreName(scoreIndex) + " for " + scorecard.getScores(dice)[scoreIndex] + " points?" + " (Y/N) ");
                             String confirm = "";
-                            kb.nextLine();
-                            while (!(confirm.equals("y") || confirm.equals("n")))
+                            if (bots.get(player))
                             {
-                                System.out.print("Score as " + scorecard.getScoreName(scoreIndex) + " for " + scorecard.getScores(dice)[scoreIndex] + " points? (Y/N) ");
-                                confirm = kb.nextLine().toLowerCase();
+                                confirm = "y";
+                                ai.sleep();
+                                System.out.println(confirm);
+                                ai.sleep();
+                            }
+                            else
+                            {
+                                kb.nextLine();
+                                while (!(confirm.equals("y") || confirm.equals("n")))
+                                {
+                                    confirm = kb.nextLine().toLowerCase();
+                                }
                             }
                             if (confirm.equals("y"))
                             {
@@ -196,5 +206,18 @@ class Yahtzee
             }
             die.roll();
         }
+    }
+    static String coloredText(String text, int color)
+    {
+        // special escape characters
+        // 0 - black
+        // 1 - red
+        // 2 - green
+        // 3 - yellow
+        // 4 - blue
+        // 5 - magenta
+        // 6 - cyan
+        // 7 - white
+        return "\u001b[3" + color + "m" + text + "\u001b[0m";
     }
 }
