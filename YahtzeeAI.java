@@ -91,4 +91,9 @@ class YahtzeeAI
         }
         return highestScoringIndex(scores);
     }
+    public void sleep()
+    {
+        // skilled bots "think" faster
+        Thread.sleep(400 - (difficulty * 30));
+    }
 }

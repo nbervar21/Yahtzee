@@ -33,7 +33,7 @@ class Yahtzee
                     confirm = kb.nextLine().toLowerCase();
                 }
                 boolean isBot = confirm.equals("y");
-                System.out.println("Added " + scorer + (isBot ? " (BOT)" : ""));
+                System.out.println("Added " + scorer + " (" + (isBot ? "BOT" : "HUMAN") + ")");
                 players.add(new Scorecard(scorer));
                 bots.add(isBot);
             }
@@ -57,7 +57,9 @@ class Yahtzee
                         if (bots.get(player))
                         {
                             input = ai.rollOrHold(rollsLeft, scorecard, dice);
+                            ai.sleep();
                             System.out.println(input);
+                            ai.sleep();
                         }
                         else
                         {
@@ -111,13 +113,23 @@ class Yahtzee
                         while (scoreIndex < -1 || scoreIndex > 12 || (scoreIndex > -1 && scorecard.isScored(scoreIndex)))
                         {
                             System.out.print("Score as: ");
-                            try
+                            if (bots.get(player))
                             {
-                                scoreIndex = kb.nextInt() - 1;
+                                scoreIndex = ai.whatToScore(scorecard, dice);
+                                ai.sleep();
+                                System.out.println(scoreIndex);
+                                ai.sleep();
                             }
-                            catch (InputMismatchException e)
+                            else
                             {
-                                kb.next();
+                                try
+                                {
+                                    scoreIndex = kb.nextInt() - 1;
+                                }
+                                catch (InputMismatchException e)
+                                {
+                                    kb.next();
+                                }
                             }
                         }
                         if (scoreIndex > -1)
@@ -145,10 +157,10 @@ class Yahtzee
                                     }
                                     if (gameOver)
                                     {
-                                        System.out.println("\nFinal Score";
-                                        for (Scorecard scorecard : players)
+                                        System.out.println("\nFinal Score");
+                                        for (Scorecard card : players)
                                         {
-                                            System.out.println(scorecard.getScorer() + ": " + scorecard.getTotal());
+                                            System.out.println(card.getScorer() + ": " + card.getTotal());
                                         }
                                     }
                                 }
