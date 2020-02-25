@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -10,15 +13,13 @@ class Yahtzee
     {
         kb = input;
     }
+    // called when a new game is started
     public void play()
     {
-        YahtzeeAI ai = new YahtzeeAI();
-        Die[] dice = {new Die(), new Die(), new Die(), new Die(), new Die()};
         // add players to the game
         kb.nextLine();
         System.out.println("Adding players, leave blank when finished");
         List<Scorecard> players = new ArrayList<Scorecard>();
-        List<Boolean> bots = new ArrayList<Boolean>();
         String scorer = "";
         do
         {
@@ -33,33 +34,77 @@ class Yahtzee
                     confirm = kb.nextLine().toLowerCase();
                 }
                 boolean isBot = confirm.equals("y");
-                System.out.println("Added " + scorer + " (" + (isBot ? coloredText("BOT", 6) : "") + ")");
-                players.add(new Scorecard(scorer));
-                bots.add(isBot);
+                System.out.println("Added " + scorer + " (" + (isBot ? coloredText("BOT", 6) : coloredText("HUMAN", 3)) + ")");
+                players.add(new Scorecard(scorer, isBot));
             }
         }
         while (!scorer.equals("") || players.isEmpty());
+        play(players);
+    }
+    // called when loading a game from a file
+    public void play(String loadFileName)
+    {
+        int index = 0;
+        Scanner readSave = new Scanner(loadFileName);
+        while (readSave.hasNext())
+        {
+            System.out.println("[" + index + "] " + readSave.next());
+            index++;
+        }
+    }
+    // called when we have our player list already
+    public void play(List<Scorecard> players)
+    {
+        YahtzeeAI ai = new YahtzeeAI();
+        Die[] dice = {new Die(), new Die(), new Die(), new Die(), new Die()};
         // start the main game loop
+        boolean savePending = false;
         boolean gameOver = false;
         while (!gameOver)
         {
+            if (savePending)
+            {
+                String saveFileName;
+                try
+                {
+                    File saveFile;
+                    do
+                    {
+                        System.out.print("Save to file: ");
+                        saveFileName = kb.nextLine() + ".yz";
+                        saveFile = new File(saveFileName);
+                    }
+                    while (!saveFile.createNewFile());
+                    System.out.print("Saving...");
+                    FileWriter saveFileWriter = new FileWriter(saveFileName);
+                    saveFileWriter.write("yahtzeeSave ");
+                    saveFileWriter.close();
+                    System.out.println(" Saved to " + saveFileName + "!");
+                }
+                catch (IOException e)
+                {
+                    System.out.println("Oops! Something screwed up.");
+                }
+                return;
+            }
             for (int player = 0; player < players.size(); player++)
             {
                 Scorecard scorecard = players.get(player);
                 int rollsLeft = 2;
                 while (true)
                 {
-                    System.out.println(scorecard.getString(dice) + "\n" + combineDice(dice, false) + "\n" + combineDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll (" + rollsLeft + ")\n[7]   Score");
+                    System.out.println(scorecard.getString(dice) + "\n" + combineDice(dice, false) + "\n" + combineDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll (" + rollsLeft + ")\n[7]   Score\n" + (savePending ? "  (save pending)" : "[8]   Save"));
                     int input = -1;
-                    while (input < 0 || input > 7)
+                    while (input < 0 || input > (savePending ? 7 : 8))
                     {
                         System.out.print("Enter a number: ");
-                        if (bots.get(player))
+                        if (player.getIsBot())
                         {
                             input = ai.rollOrHold(rollsLeft, scorecard, dice);
                             ai.sleep();
-                            System.out.println(input);
+                            System.out.print(input);
                             ai.sleep();
+                            System.out.print("\n");
                         }
                         else
                         {
@@ -70,6 +115,11 @@ class Yahtzee
                             catch (InputMismatchException e)
                             {
                                 kb.next();
+                            }
+                            if (input == 6 && rollsLeft == 6)
+                            {
+                                System.out.println("You are out of rolls!");
+                                input = -1;
                             }
                         }
                     }
@@ -83,23 +133,16 @@ class Yahtzee
                     }
                     else if (input == 6)
                     {
-                        if (rollsLeft > 0)
+                        for (Die die : dice)
                         {
-                            for (Die die : dice)
+                            if (!die.isHeld())
                             {
-                                if (!die.isHeld())
-                                {
-                                    die.roll();
-                                }
+                                die.roll();
                             }
-                            rollsLeft--;
                         }
-                        else
-                        {
-                            System.out.println("You are out of rolls!");
-                        }
+                        rollsLeft--;
                     }
-                    else
+                    else if (input == 7)
                     {
                         System.out.println("[0] Cancel");
                         for (int i = 0; i < 13; i++)
@@ -113,12 +156,13 @@ class Yahtzee
                         while (scoreIndex < -1 || scoreIndex > 12 || (scoreIndex > -1 && scorecard.isScored(scoreIndex)))
                         {
                             System.out.print("Score as: ");
-                            if (bots.get(player))
+                            if (player.getIsBot())
                             {
                                 scoreIndex = ai.whatToScore(scorecard, dice);
                                 ai.sleep();
-                                System.out.println(scoreIndex + 1);
+                                System.out.print(scoreIndex + 1);
                                 ai.sleep();
+                                System.out.print("\n");
                             }
                             else
                             {
@@ -136,12 +180,13 @@ class Yahtzee
                         {
                             System.out.print("Score as " + scorecard.getScoreName(scoreIndex) + " for " + scorecard.getScores(dice)[scoreIndex] + " points?" + " (Y/N) ");
                             String confirm = "";
-                            if (bots.get(player))
+                            if (player.getIsBot())
                             {
                                 confirm = "y";
                                 ai.sleep();
-                                System.out.println(confirm);
+                                System.out.print(confirm);
                                 ai.sleep();
+                                System.out.print("\n");
                             }
                             else
                             {
@@ -178,10 +223,15 @@ class Yahtzee
                             }
                         }
                     }
+                    else
+                    {
+                        savePending = true;
+                        System.out.println("Game will be saved after this round");
+                    }
                 }
             }
         }
-        System.out.println("Thanks for playing!");
+        System.out.println("Thanks for playing!\n");
     }
     static String combineDice(Die[] dice, boolean heldOnly)
     {

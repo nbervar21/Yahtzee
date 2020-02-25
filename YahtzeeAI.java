@@ -58,14 +58,14 @@ class YahtzeeAI
             // hold values that we have more than 2 of
             for (int i = 0; i < 5; i++)
             {
-                shouldHold[i] = count[dice[i].getValue()] > 2;
+                shouldHold[i] = count[dice[i].getValue() - 1] > 2;
             }
         }
         return shouldHold;
     }
     public int rollOrHold(int rollsLeft, Scorecard scorecard, Die[] dice)
     {
-        if (rollsLeft == 0)
+        if (rollsLeft == 0 || scorecard.getScores()[whatToScore(scorecard, dice)] > 20)
         {
             return 7;
         }

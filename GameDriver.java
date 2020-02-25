@@ -41,7 +41,13 @@ class GameDriver
             }
             else if (input == 2)
             {
-                System.out.println("AYYYY");
+                String loadFileName = ""
+                do
+                {
+                    confirm = kb.nextLine()
+                }
+                while (loadFileName.equals(""));
+                yahtzee.play(loadFileName);
             }
         }
         System.out.println("Have a nice day!");

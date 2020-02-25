@@ -1,6 +1,7 @@
 class Scorecard
 {
     String scorer;
+    boolean isBot = false;
     // there's gotta be a better way to do this
     int[] scores = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     boolean[] scored = {false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -11,6 +12,15 @@ class Scorecard
     public Scorecard(String name)
     {
         scorer = name;
+    }
+    public Scorecard(String name, boolean bot)
+    {
+        scorer = name;
+        isBot = bot;
+    }
+    public boolean getIsBot()
+    {
+        return isBot;
     }
     public String getScorer()
     {
