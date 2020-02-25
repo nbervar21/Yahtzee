@@ -7,7 +7,7 @@ class GameDriver
     {
         Scanner kb = new Scanner(System.in);
         Yahtzee yahtzee = new Yahtzee(kb);
-        //   ._______.    ______               Made by nbervar21 on github
+        //   ._______.    ______
         //  /   o   /|   /\     \      __   _____   _   _ _____ ______ _____ _____
         // /_______/o|  /o \  o  \     \ \ / / _ \ | | | |_   _|___  /|  ___|  ___|
         // | o     | | /   o\_____\     \ V / /_\ \| |_| | | |    / / | |__ | |__
@@ -41,12 +41,9 @@ class GameDriver
             }
             else if (input == 2)
             {
-                String loadFileName = ""
-                do
-                {
-                    confirm = kb.nextLine()
-                }
-                while (loadFileName.equals(""));
+                kb.nextLine();
+                System.out.print("Load file: ");
+                String loadFileName = kb.nextLine() + ".yz";
                 yahtzee.play(loadFileName);
             }
         }

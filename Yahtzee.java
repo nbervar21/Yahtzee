@@ -1,9 +1,10 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 
 class Yahtzee
@@ -44,8 +45,18 @@ class Yahtzee
     // called when loading a game from a file
     public void play(String loadFileName)
     {
+        Scanner readSave;
+        try
+        {
+            File loadFile = new File(loadFileName);
+            readSave = new Scanner(loadFile);
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("Can't find file " + loadFileName + "");
+            return;
+        }
         int index = 0;
-        Scanner readSave = new Scanner(loadFileName);
         while (readSave.hasNext())
         {
             System.out.println("[" + index + "] " + readSave.next());
@@ -98,7 +109,7 @@ class Yahtzee
                     while (input < 0 || input > (savePending ? 7 : 8))
                     {
                         System.out.print("Enter a number: ");
-                        if (player.getIsBot())
+                        if (scorecard.belongsToBot())
                         {
                             input = ai.rollOrHold(rollsLeft, scorecard, dice);
                             ai.sleep();
@@ -156,7 +167,7 @@ class Yahtzee
                         while (scoreIndex < -1 || scoreIndex > 12 || (scoreIndex > -1 && scorecard.isScored(scoreIndex)))
                         {
                             System.out.print("Score as: ");
-                            if (player.getIsBot())
+                            if (scorecard.belongsToBot())
                             {
                                 scoreIndex = ai.whatToScore(scorecard, dice);
                                 ai.sleep();
@@ -180,7 +191,7 @@ class Yahtzee
                         {
                             System.out.print("Score as " + scorecard.getScoreName(scoreIndex) + " for " + scorecard.getScores(dice)[scoreIndex] + " points?" + " (Y/N) ");
                             String confirm = "";
-                            if (player.getIsBot())
+                            if (scorecard.belongsToBot())
                             {
                                 confirm = "y";
                                 ai.sleep();

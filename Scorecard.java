@@ -18,7 +18,7 @@ class Scorecard
         scorer = name;
         isBot = bot;
     }
-    public boolean getIsBot()
+    public boolean belongsToBot()
     {
         return isBot;
     }
