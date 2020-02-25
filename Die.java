@@ -13,8 +13,27 @@ class Die
     }
     public int roll()
     {
-        value = ((int) (Math.random() * 6)) + 1;
-        return value;
+        return ((int) (Math.random() * 6)) + 1;
+    }
+    public int roll(int weight)
+    {
+        if (weight < 2)
+        {
+            return roll();
+        }
+        else
+        {
+            int max = 0;
+            for (int i = 0; i < weight; i++)
+            {
+                int cur = roll();
+                if (cur > max)
+                {
+                    max = cur;
+                }
+            }
+        }
+        return max;
     }
     public boolean isHeld()
     {

@@ -51,6 +51,27 @@ class Scorecard
     {
         return scores;
     }
+    public String saveString()
+    {
+        StringBuilder scoreString = new StringBuilder("");
+        for (int i = 0; i < 13; i++)
+        {
+            if (scored[i])
+            {
+                scoreString.append(scores[i]);
+            }
+            else
+            {
+                scoreString.append("-1");
+            }
+            scoreString.append(" ");
+        }
+        return scoreString.toString();
+    }
+    public boolean loadString(String loadString)
+    {
+        Scanner load = new Scanner(load);
+    }
     public int[] getScores(Die[] dice)
     {
         int[] newScores = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

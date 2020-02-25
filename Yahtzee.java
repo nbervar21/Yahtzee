@@ -59,9 +59,41 @@ class Yahtzee
         int index = 0;
         while (readSave.hasNext())
         {
-            System.out.println("[" + index + "] " + readSave.next());
+            if (index > 0)
+            {
+                System.out.println("[" + index + "] " + readSave.next());
+            }
             index++;
         }
+    }
+    // save the game
+    public void save(List<Scorecard> players)
+    {
+        String saveFileName;
+        try
+        {
+            File saveFile;
+            do
+            {
+                System.out.print("Save to file: ");
+                saveFileName = kb.nextLine() + ".yz";
+                saveFile = new File(saveFileName);
+            }
+            while (!saveFile.createNewFile());
+            System.out.print("Saving...");
+            FileWriter saveFileWriter = new FileWriter(saveFileName);
+            for (Scorecard scorecard : players)
+            {
+
+            }
+            saveFileWriter.close();
+            System.out.println(" Saved to " + saveFileName + "!");
+        }
+        catch (IOException e)
+        {
+            System.out.println("There was a problem saving the game :(");
+        }
+
     }
     // called when we have our player list already
     public void play(List<Scorecard> players)
@@ -75,27 +107,7 @@ class Yahtzee
         {
             if (savePending)
             {
-                String saveFileName;
-                try
-                {
-                    File saveFile;
-                    do
-                    {
-                        System.out.print("Save to file: ");
-                        saveFileName = kb.nextLine() + ".yz";
-                        saveFile = new File(saveFileName);
-                    }
-                    while (!saveFile.createNewFile());
-                    System.out.print("Saving...");
-                    FileWriter saveFileWriter = new FileWriter(saveFileName);
-                    saveFileWriter.write("yahtzeeSave ");
-                    saveFileWriter.close();
-                    System.out.println(" Saved to " + saveFileName + "!");
-                }
-                catch (IOException e)
-                {
-                    System.out.println("Oops! Something screwed up.");
-                }
+                save(players);
                 return;
             }
             for (int player = 0; player < players.size(); player++)
