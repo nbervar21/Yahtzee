@@ -56,7 +56,7 @@ class Scorecard
     }
     public String saveString()
     {
-        StringBuilder scoreString = new StringBuilder(scorer + "\n");
+        StringBuilder scoreString = new StringBuilder((isBot ? "BOT " : "HUM ") + scorer + "\n");
         for (int i = 0; i < HANDS; i++)
         {
             scoreString.append(" ");
