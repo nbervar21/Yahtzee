@@ -1,5 +1,8 @@
+import java.util.Scanner;
+
 class Scorecard
 {
+    static final int HANDS = 13;
     String scorer;
     boolean isBot = false;
     // there's gotta be a better way to do this
@@ -53,9 +56,10 @@ class Scorecard
     }
     public String saveString()
     {
-        StringBuilder scoreString = new StringBuilder("");
-        for (int i = 0; i < 13; i++)
+        StringBuilder scoreString = new StringBuilder(scorer + "\n");
+        for (int i = 0; i < HANDS; i++)
         {
+            scoreString.append(" ");
             if (scored[i])
             {
                 scoreString.append(scores[i]);
@@ -64,13 +68,32 @@ class Scorecard
             {
                 scoreString.append("-1");
             }
-            scoreString.append(" ");
         }
-        return scoreString.toString();
+        return scoreString.toString() + "\n";
     }
-    public boolean loadString(String loadString)
+    public boolean loadScoreString(String loadString)
     {
-        Scanner load = new Scanner(load);
+        Scanner load = new Scanner(loadString);
+        for (int i = 0; i < HANDS; i++)
+        {
+            if (!load.hasNextInt())
+            {
+                System.out.println("LOADING ERROR: Not enough scores!");
+                return false;
+            }
+            scores[i] = load.nextInt();
+            if (scores[i] < 0)
+            {
+                scored[i] = false;
+                scores[i] = 0;
+            }
+            else
+            {
+                scored[i] = true;
+            }
+            System.out.print(".");
+        }
+        return true;
     }
     public int[] getScores(Die[] dice)
     {
@@ -135,7 +158,7 @@ class Scorecard
         // chance
         newScores[12] = sum;
         // replace scores with already scored ones
-        for (int i = 0; i < 13; i++)
+        for (int i = 0; i < HANDS; i++)
         {
             if (scored[i])
             {
@@ -147,7 +170,7 @@ class Scorecard
     public int getTotal()
     {
         int total = 0;
-        for (int i = 0; i < 13; i++)
+        for (int i = 0; i < HANDS; i++)
         {
             if (isScored(i))
             {

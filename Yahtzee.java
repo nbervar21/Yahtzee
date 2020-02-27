@@ -56,15 +56,28 @@ class Yahtzee
             System.out.println("Can't find file " + loadFileName + "");
             return;
         }
-        int index = 0;
-        while (readSave.hasNext())
+        System.out.print("Loading");
+        List<Scorecard> players = new ArrayList<Scorecard>();
+        int index = 1;
+        while (readSave.hasNextLine())
         {
-            if (index > 0)
+            String line = readSave.nextLine();
+            if (!line.startsWith("#") && !line.startsWith("//"))
             {
-                System.out.println("[" + index + "] " + readSave.next());
+                if (index % 2 == 0)
+                {
+                    players.get(players.size() - 1).loadScoreString(line);
+                }
+                else
+                {
+                    String[] plyData = line.split(" ", 2);
+                    players.add(new Scorecard(plyData[1], plyData[0].equals("BOT")));
+                }
+                index++;
             }
-            index++;
         }
+        System.out.println("Loaded!");
+        play(players);
     }
     // save the game
     public void save(List<Scorecard> players)
@@ -84,7 +97,7 @@ class Yahtzee
             FileWriter saveFileWriter = new FileWriter(saveFileName);
             for (Scorecard scorecard : players)
             {
-
+                saveFileWriter.write(scorecard.saveString());
             }
             saveFileWriter.close();
             System.out.println(" Saved to " + saveFileName + "!");
@@ -116,7 +129,7 @@ class Yahtzee
                 int rollsLeft = 2;
                 while (true)
                 {
-                    System.out.println(scorecard.getString(dice) + "\n" + combineDice(dice, false) + "\n" + combineDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll (" + rollsLeft + ")\n[7]   Score\n" + (savePending ? "  (save pending)" : "[8]   Save"));
+                    System.out.println(scorecard.getString(dice) + "\n" + combineDice(dice, false) + "\n" + combineDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll (" + rollsLeft + ")\n[7]   Score\n" + (savePending ? "(save pending)" : "[8]   Save"));
                     int input = -1;
                     while (input < 0 || input > (savePending ? 7 : 8))
                     {
@@ -139,7 +152,7 @@ class Yahtzee
                             {
                                 kb.next();
                             }
-                            if (input == 6 && rollsLeft == 6)
+                            if (input == 6 && rollsLeft == 0)
                             {
                                 System.out.println("You are out of rolls!");
                                 input = -1;
@@ -161,6 +174,7 @@ class Yahtzee
                             if (!die.isHeld())
                             {
                                 die.roll();
+                                System.out.println("Rolled a " + die.getValue());
                             }
                         }
                         rollsLeft--;

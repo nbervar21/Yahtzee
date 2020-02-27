@@ -5,7 +5,7 @@ class Die
     public Die()
     {
         held = false;
-        value = 5;
+        roll();
     }
     public int getValue()
     {
@@ -13,7 +13,8 @@ class Die
     }
     public int roll()
     {
-        return ((int) (Math.random() * 6)) + 1;
+        value = ((int) (Math.random() * 6)) + 1;
+        return value;
     }
     public int roll(int weight)
     {
@@ -32,8 +33,9 @@ class Die
                     max = cur;
                 }
             }
+            value = max;
+            return max;
         }
-        return max;
     }
     public boolean isHeld()
     {
