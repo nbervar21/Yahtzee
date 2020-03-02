@@ -65,7 +65,7 @@ class YahtzeeAI
     }
     public int rollOrHold(int rollsLeft, Scorecard scorecard, Die[] dice)
     {
-        if (rollsLeft == 0 || scorecard.getScores()[whatToScore(scorecard, dice)] > 20)
+        if (rollsLeft == 0 || scorecard.getScores(dice)[whatToScore(scorecard, dice)] > 20)
         {
             return 7;
         }

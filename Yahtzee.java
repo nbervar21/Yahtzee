@@ -14,7 +14,7 @@ class Yahtzee
     {
         kb = input;
     }
-    // called when a new game is started
+    // called when a fresh game is started
     public void play()
     {
         // add players to the game
@@ -106,7 +106,6 @@ class Yahtzee
         {
             System.out.println("There was a problem saving the game :(");
         }
-
     }
     // called when we have our player list already
     public void play(List<Scorecard> players)
@@ -236,7 +235,14 @@ class Yahtzee
                             if (confirm.equals("y"))
                             {
                                 scorecard.score(scoreIndex, dice);
-                                resetDice(dice);
+                                for (Die die : dice)
+                                {
+                                    if (die.isHeld())
+                                    {
+                                        die.toggleHeld();
+                                    }
+                                    die.roll();
+                                }
                                 if (players.lastIndexOf(scorecard) == players.size() - 1)
                                 {
                                     gameOver = true;
@@ -282,17 +288,6 @@ class Yahtzee
             }
         }
         return String.join("\n", diceRows);
-    }
-    static void resetDice(Die[] dice)
-    {
-        for (Die die : dice)
-        {
-            if (die.isHeld())
-            {
-                die.toggleHeld();
-            }
-            die.roll();
-        }
     }
     static String coloredText(String text, int color)
     {
