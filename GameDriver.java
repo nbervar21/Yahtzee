@@ -17,9 +17,9 @@ class GameDriver
         System.out.println("\n   ._______.    ______\n  /   o   /|   /\\     \\      __   _____   _   _ _____ ______ _____ _____\n /_______/o|  /o \\  o  \\     \\ \\ / / _ \\ | | | |_   _|___  /|  ___|  ___|\n | o     | | /   o\\_____\\     \\ V / /_\\ \\| |_| | | |    / / | |__ | |__\n |   o   |o/ \\o   /o    /      \\ /|  _  ||  _  | | |   / /  |  __||  __|\n |     o |/   \\ o/  o  /       | || | | || | | | | | ./ /___| |___| |___\n '-------'     \\/____o/        \\_/\\_| |_/\\_| |_/ \\_/ \\_____/\\____/\\____/\n\n");
         while (true)
         {
-            System.out.println("Menu\n[0] Quit\n[1] New Game\n[2] Load Game");
+            System.out.println("Menu\n[0] Quit\n[1] New Game\n[2] Load Game\n[3] How to Play");
             int input = -1;
-            while (input < 0 || input > 2)
+            while (input < 0 || input > 3)
             {
                 System.out.print("Enter a number: ");
                 try
@@ -45,6 +45,10 @@ class GameDriver
                 System.out.print("Load file: ");
                 String loadFileName = kb.nextLine() + ".yz";
                 yahtzee.play(loadFileName);
+            }
+            else if (input == 3)
+            {
+                System.out.println("\n-= How to play =-\n\nYahtzee is like five-card poker, except with dice.\nYou have up to three rolls, and can choose which dice to roll or not roll at any time.\nWhen you have a satisfactory hand, you can choose to score it.\nKeep in mind that you can only score each type of hand once.\n");
             }
         }
         System.out.println("Have a nice day!");

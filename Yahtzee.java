@@ -28,7 +28,7 @@ class Yahtzee
             scorer = kb.nextLine();
             if (!scorer.equals(""))
             {
-                System.out.print("CPU player? [Y/N]: ");
+                System.out.print("Should " + scorer + " be a CPU player? [Y/N]: ");
                 String confirm = "";
                 while (!(confirm.equals("y") || confirm.equals("n")))
                 {
@@ -128,7 +128,7 @@ class Yahtzee
                 int rollsLeft = 2;
                 while (true)
                 {
-                    System.out.println(scorecard.getString(dice) + "\n" + combineDice(dice, false) + "\n" + combineDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll (" + rollsLeft + ")\n[7]   Score\n" + (savePending ? "(save pending)" : "[8]   Save"));
+                    System.out.println(scorecard.getString(dice) + "\n" + combineDice(dice, false) + "\n" + combineDice(dice, true) + "\n\n[0]   Quit\n[1-5] Hold\n[6]   Roll (" + rollsLeft + " left)\n[7]   Score\n" + (savePending ? "(save pending)" : "[8]   Save"));
                     int input = -1;
                     while (input < 0 || input > (savePending ? 7 : 8))
                     {
